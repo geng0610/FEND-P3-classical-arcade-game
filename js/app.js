@@ -2,10 +2,10 @@ var gameWidth=5; //width of the game canvas
 var gameHeight=6; //height of the game canvas
 function enemyInitialX(direction){ //starting x differs depending on the direction of the movement.
     if(direction ==1) {
-        return Math.round(-1-Math.random()) //rock start somewhere completely off the screen
+        return Math.round(-1-Math.random()); //rock start somewhere completely off the screen
     } 
     else {
-        return Math.round(5+Math.random()) //rock start somewhere completely off the screen
+        return Math.round(5+Math.random()); //rock start somewhere completely off the screen
     }
 };//
 function enemyInitialY(){return Math.round((2*Math.random()+1))}; //initial y position can only be between 1, 2, or 3
@@ -117,7 +117,7 @@ Player.prototype.update = function() {
 
 var allEnemies=[];
 for (i=0;i<Math.round(Math.random())*3+3;i++){ //generate between 3 to 6 enemies. 
-    allEnemies.push(new Enemy())
+    allEnemies.push(new Enemy());
 }
 var player = new Player();
 
@@ -130,6 +130,6 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-    console.log(allowedKeys[e.keyCode])
+    //console.log(allowedKeys[e.keyCode]);
     player.handleInput(allowedKeys[e.keyCode]);
 });
