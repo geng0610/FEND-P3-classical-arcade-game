@@ -1,3 +1,4 @@
+"use strict"; //strict mode
 var gameWidth=5; //width of the game canvas
 var gameHeight=6; //height of the game canvas
 function enemyInitialX(direction){ //starting x differs depending on the direction of the movement.
@@ -7,34 +8,34 @@ function enemyInitialX(direction){ //starting x differs depending on the directi
     else {
         return Math.round(5+Math.random()); //rock start somewhere completely off the screen
     }
-};//
-function enemyInitialY(){return Math.round((2*Math.random()+1))}; //initial y position can only be between 1, 2, or 3
-function randomSpeed(){return Math.random()*3+2}; //set a random speed
-function randomDirection(){return Math.round(Math.random())*2-1}; //set a direction. 1 for going right, -1 for going left.
+}
+function enemyInitialY(){return Math.round((2*Math.random()+1));} //initial y position can only be between 1, 2, or 3
+function randomSpeed(){return Math.random()*3+2;} //set a random speed
+function randomDirection(){return Math.round(Math.random())*2-1;} //set a direction. 1 for going right, -1 for going left.
 
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
-    this.direction = randomDirection();
-    this.x =enemyInitialX(this.direction);
-    this.y =enemyInitialY();
-    this.speed = randomSpeed()*this.direction;
+    this.direction = randomDirection(); //randome direction
+    this.x =enemyInitialX(this.direction); //initalize x, given a direction
+    this.y =enemyInitialY(); //initialize y
+    this.speed = randomSpeed()*this.direction; //initialize speed
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/rock.png';
-    console.log(this.direction);
+    this.sprite = 'images/Rock.png'; //image of an enemy.
+    //console.log(this.direction); //used for debug
 };
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    this.x = this.x+this.speed*dt;
-    if((this.x>gameWidth+1 && this.direction == 1) || (this.x<-2 && this.direction == -1)){
-    this.direction = randomDirection();
-    this.x =enemyInitialX(this.direction);
-    this.y =enemyInitialY();
-    this.speed = randomSpeed()*this.direction;
+    this.x = this.x+this.speed*dt; 
+    if((this.x>gameWidth+1 && this.direction == 1) || (this.x<-2 && this.direction == -1)){ //if an enemy is off the screen
+    this.direction = randomDirection(); //reset direction
+    this.x =enemyInitialX(this.direction); //reset x
+    this.y =enemyInitialY(); //reset y
+    this.speed = randomSpeed()*this.direction; //reset speed
     }
         
 
@@ -52,19 +53,19 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 
-var playerInitialX = 2;
-var playerInitialY = 5;
+var playerInitialX = 2; //initial x of the player
+var playerInitialY = 5; //initial y of the player
 
 var Player = function(){
-    Enemy.call(this);
-    this.sprite = 'images/char-boy.png';
+    Enemy.call(this); //initialize using Enemy
+    this.sprite = 'images/char-boy.png'; //image of the player
     this.x = playerInitialX;
     this.y = playerInitialY;
-    //console.log("player created");
+    //console.log("player created"); //used for debug
 };
-Player.prototype=Object.create(Enemy.prototype);
-Player.prototype.constructor=Player;
-Player.prototype.handleInput = function (input){
+Player.prototype=Object.create(Enemy.prototype); //inherience
+Player.prototype.constructor=Player; //inheritence
+Player.prototype.handleInput = function (input){ //handles directions,as long as the player is on screen.
     if (input == "up" && this.y >0){
         this.y=this.y-1;
     }
@@ -79,44 +80,48 @@ Player.prototype.handleInput = function (input){
     }
 
 };
-Player.prototype.update = function() {
-    if (this.y==0){  //player lands on water
-        var canvas = document.querySelector('canvas');
-        var ctx = canvas.getContext("2d");
-        ctx.font = "30pt Impact";
-        ctx.textAlign = "center";
-        ctx.fillStyle = "blue";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 3;
-        ctx.fillText("you win!", canvas.width/2,40);
-        ctx.strokeText("you win!", canvas.width/2,40);
-        player = new Player();
-        setTimeout(function(){ctx.clearRect(0,0,600,100)},1000); //wipe the letters after 1 second
+//define messages. Naming canvas differently fron canvas used in game engine.
+var canvasText = document.querySelector('canvas');
+var ctxText = canvasText.getContext("2d");
+ctxText.font = "30pt Impact";
+ctxText.textAlign = "center";
+ctxText.strokeStyle = "black";
+ctxText.lineWidth = 3;
+function winMessage(){
+    ctxText.fillStyle = "blue";
+    ctxText.fillText("you win!", canvasText.width/2,40);
+    ctxText.strokeText("you win!", canvasText.width/2,40);
+    setTimeout(function(){ctxText.clearRect(0,0,600,100);},1000); //wipe the letters after 1 second
+}
+function loseMessage(){
+    ctxText.fillStyle = "red";
+    ctxText.fillText("you got hit by a rock!", canvasText.width/2,40);
+    ctxText.strokeText("you got hit by a rock!", canvasText.width/2,40);
+    setTimeout(function(){ctxText.clearRect(0,0,600,100);},1000); //wipe the letters after 1 second
+}
 
+
+
+Player.prototype.update = function() {
+    if (this.y===0){  //player lands on water
+        winMessage();
+        player = new Player(); //reset game
     }
-    for (enemy in allEnemies){
+    for (var enemy in allEnemies){
         if (Math.round(allEnemies[enemy].y)==this.y && Math.round(allEnemies[enemy].x)==this.x){ //collision detection
-            var canvas = document.querySelector('canvas');
-            var ctx = canvas.getContext("2d");
-            ctx.font = "30pt Impact";
-            ctx.textAlign = "center";
-            ctx.fillStyle = "red";
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 3;
-            ctx.fillText("you got hit by a rock!", canvas.width/2,40);
-            ctx.strokeText("you got hit by a rock!", canvas.width/2,40);
-            player = new Player();
-            setTimeout(function(){ctx.clearRect(0,0,600,100)},1000); //wipe the letters after 1 second
+            loseMessage();
+            player = new Player(); //reset game
+            break;
         }
     }
-}
+};
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
 var allEnemies=[];
-for (i=0;i<Math.round(Math.random())*3+3;i++){ //generate between 3 to 6 enemies. 
+for (var i=0;i<Math.round(Math.random())*3+3;i++){ //generate between 3 to 6 enemies. 
     allEnemies.push(new Enemy());
 }
 var player = new Player();
